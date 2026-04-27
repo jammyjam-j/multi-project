@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash
 def client():
     app = create_app({
         'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': 'sqlite:///test.db',
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
         'SECRET_KEY': 'test-secret'
     })
     with app.test_client() as client:
@@ -96,7 +96,14 @@ def test_delete_nonexistent_product(client, auth_token):
     assert response.status_code == 404
 
 def test_delete_product_requires_auth(client):
-    # First create a product with auth, then try deleting without auth
-    # This tests that DELETE is protected
     response = client.delete('/products/1')
     assert response.status_code == 401
+
+def test_login_invalid_json(client):
+    response = client.post('/auth/login', data='not-json', content_type='application/json')
+    assert response.status_code == 400
+
+def test_create_product_invalid_json(client, auth_token):
+    response = client.post('/products', data='not-json', content_type='application/json',
+        headers={'Authorization': f'Bearer {auth_token}'})
+    assert response.status_code == 400

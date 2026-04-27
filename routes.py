@@ -1,11 +1,10 @@
-from flask import Blueprint, request, jsonify, abort
+from flask import Blueprint, request, jsonify, current_app
 from functools import wraps
 from app import db
 from models import Product, User
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 import jwt
 import datetime
-import os
 
 products_bp = Blueprint('products', __name__)
 health_bp = Blueprint('health', __name__)
@@ -13,21 +12,26 @@ auth_bp = Blueprint('auth', __name__)
 
 # --- JWT decorator ---
 def token_required(f):
+    """Require a valid JWT; pass current_user to the endpoint."""
     @wraps(f)
     def decorated(*args, **kwargs):
         token = request.headers.get('Authorization', '').replace('Bearer ', '')
         if not token:
             return jsonify({'error': 'Token is missing'}), 401
         try:
-            data = jwt.decode(token, os.environ.get('SECRET_KEY', 'dev-secret-key'), algorithms=['HS256'])
-            current_user = User.query.get(data['user_id'])
+            data = jwt.decode(
+                token,
+                current_app.config['SECRET_KEY'],
+                algorithms=['HS256']
+            )
+            current_user = db.session.get(User, data['user_id'])
             if not current_user:
                 return jsonify({'error': 'Invalid token'}), 401
         except jwt.ExpiredSignatureError:
             return jsonify({'error': 'Token has expired'}), 401
         except Exception:
             return jsonify({'error': 'Invalid token'}), 401
-        return f(*args, **kwargs)
+        return f(current_user=current_user, *args, **kwargs)
     return decorated
 
 # --- Health endpoints ---
@@ -46,9 +50,15 @@ def readiness_check():
 # --- Auth endpoints ---
 @auth_bp.route('/auth/login', methods=['POST'])
 def login():
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({'error': 'Invalid JSON'}), 400
+
     username = data.get('username')
     password = data.get('password')
+
+    if not username or not password:
+        return jsonify({'error': 'Username and password required'}), 400
 
     user = User.query.filter_by(username=username).first()
     if not user or not check_password_hash(user.password_hash, password):
@@ -56,7 +66,7 @@ def login():
 
     token = jwt.encode(
         {'user_id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)},
-        os.environ.get('SECRET_KEY', 'dev-secret-key'),
+        current_app.config['SECRET_KEY'],
         algorithm='HS256'
     )
     return jsonify({'token': token}), 200
@@ -81,14 +91,17 @@ def get_product(product_id):
 
 @products_bp.route('/products', methods=['POST'])
 @token_required
-def create_product():
-    data = request.get_json()
+def create_product(current_user):
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({'error': 'Invalid JSON'}), 400
+
     required_fields = ['name', 'price']
     if not all(field in data for field in required_fields):
         return jsonify({'error': 'Missing required fields: name, price'}), 400
 
-    # P2: stronger validation
-    if not data['name'] or len(data['name'].strip()) < 1:
+    # Stronger validation
+    if not data['name'] or len(str(data['name']).strip()) < 1:
         return jsonify({'error': 'Name cannot be empty'}), 400
     if data['price'] is None or data['price'] < 0:
         return jsonify({'error': 'Price must be a non-negative number'}), 400
@@ -96,7 +109,7 @@ def create_product():
         return jsonify({'error': 'Stock cannot be negative'}), 400
 
     product = Product(
-        name=data['name'].strip(),
+        name=str(data['name']).strip(),
         description=data.get('description', ''),
         price=data['price'],
         stock=data.get('stock', 0)
@@ -107,12 +120,14 @@ def create_product():
 
 @products_bp.route('/products/<int:product_id>', methods=['PUT'])
 @token_required
-def update_product(product_id):
+def update_product(current_user, product_id):
     product = Product.query.get_or_404(product_id)
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({'error': 'Invalid JSON'}), 400
 
-    # P2: stronger validation
-    if 'name' in data and (not data['name'] or len(data['name'].strip()) < 1):
+    # Stronger validation
+    if 'name' in data and (not data['name'] or len(str(data['name']).strip()) < 1):
         return jsonify({'error': 'Name cannot be empty'}), 400
     if 'price' in data and (data['price'] is None or data['price'] < 0):
         return jsonify({'error': 'Price must be a non-negative number'}), 400
@@ -129,7 +144,7 @@ def update_product(product_id):
 
 @products_bp.route('/products/<int:product_id>', methods=['DELETE'])
 @token_required
-def delete_product(product_id):
+def delete_product(current_user, product_id):
     product = Product.query.get_or_404(product_id)
     db.session.delete(product)
     db.session.commit()

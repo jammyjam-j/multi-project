@@ -7,7 +7,9 @@ services:
       - "5000:5000"
     environment:
       - DATABASE_URL=sqlite:///products.db
-      - SECRET_KEY=dev-secret-key
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key}
       - API_TIMEOUT=30
     volumes:
       - ./data:/app/data
+    # Production: set SECRET_KEY via .env file or environment variable
+    # Do NOT hardcode secrets in this file.

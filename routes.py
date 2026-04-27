@@ -10,7 +10,7 @@ products_bp = Blueprint('products', __name__)
 health_bp = Blueprint('health', __name__)
 auth_bp = Blueprint('auth', __name__)
 
-# --- JWT decorator ---
+# --- JWT decorator with role enforcement ---
 def token_required(f):
     """Require a valid JWT; pass current_user to the endpoint."""
     @wraps(f)
@@ -33,6 +33,17 @@ def token_required(f):
             return jsonify({'error': 'Invalid token'}), 401
         return f(current_user=current_user, *args, **kwargs)
     return decorated
+
+def role_required(*roles):
+    """Enforce role-based access control."""
+    def decorator(f):
+        @wraps(f)
+        def decorated(current_user=None, *args, **kwargs):
+            if current_user.role not in roles:
+                return jsonify({'error': 'Insufficient permissions'}), 403
+            return f(current_user=current_user, *args, **kwargs)
+        return decorated
+    return decorator
 
 # --- Health endpoints ---
 @health_bp.route('/health', methods=['GET'])
@@ -91,6 +102,7 @@ def get_product(product_id):
 
 @products_bp.route('/products', methods=['POST'])
 @token_required
+@role_required('user', 'admin')
 def create_product(current_user):
     data = request.get_json(silent=True)
     if not data:
@@ -120,6 +132,7 @@ def create_product(current_user):
 
 @products_bp.route('/products/<int:product_id>', methods=['PUT'])
 @token_required
+@role_required('user', 'admin')
 def update_product(current_user, product_id):
     product = Product.query.get_or_404(product_id)
     data = request.get_json(silent=True)
@@ -144,6 +157,7 @@ def update_product(current_user, product_id):
 
 @products_bp.route('/products/<int:product_id>', methods=['DELETE'])
 @token_required
+@role_required('admin')
 def delete_product(current_user, product_id):
     product = Product.query.get_or_404(product_id)
     db.session.delete(product)

@@ -18,7 +18,7 @@
 │  └─────────────┘  └─────────────┘  └─────────────┘         │
 │                                                              │
 │  Middleware: CORS, Error Handling                            │
-│  Auth: JWT (PyJWT)                                           │
+│  Auth: JWT (PyJWT) + RBAC (admin/user/viewer)               │
 └─────────────────────────────────────────────────────────────┘
               │ SQL/SQLite
               ▼
@@ -26,6 +26,8 @@
 │                      Database                                │
 │  Tables: products, users                                     │
 │  Driver: SQLAlchemy ORM                                      │
+│  Default: SQLite (file-based)                                │
+│  Optional: PostgreSQL (production upgrade)                   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -35,14 +37,14 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                        Docker Compose                        │
 │                                                               │
-│  ┌─────────────────┐         ┌─────────────────┐            │
-│  │   API Container  │────────▶  DB Container    │            │
-│  │  (Flask + Python)│         │ (PostgreSQL)    │            │
-│  │  Port: 5000      │         │ Port: 5432      │            │
-│  └─────────────────┘         └─────────────────┘            │
+│  ┌─────────────────┐                                        │
+│  │   API Container  │                                        │
+│  │  (Flask + Python)│                                        │
+│  │  Port: 5000      │                                        │
+│  └─────────────────┘                                        │
 │                                                               │
-│  Local Development: SQLite (file-based)                      │
-│  Production: PostgreSQL (container)                          │
+│  Database: SQLite (file-based, mounted volume)               │
+│  Production: PostgreSQL via DATABASE_URL environment variable│
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -52,7 +54,7 @@
 |------|-----------|----------------|
 | **Presentation** | Client (Browser/Postman) | User interaction, request formatting |
 | **Application** | Flask API | Business logic, authentication, validation |
-| **Data** | SQLite/PostgreSQL | Persistence, data integrity |
+| **Data** | SQLite (default) / PostgreSQL | Persistence, data integrity |
 
 ## Key Dependencies
 - **Flask**: Web framework (routing, request handling)
@@ -65,3 +67,10 @@
 2. **Authorization**: Role-based access control (admin/user/viewer)
 3. **Input Validation**: Required field checks on product creation/update
 4. **CORS**: Configured to allow only trusted origins in production
+5. **Secret Management**: SECRET_KEY enforced via environment variable; dev defaults blocked in production
+
+## Deployment Plan
+- **Development**: SQLite (file-based, zero configuration)
+- **Production**: PostgreSQL — set `DATABASE_URL` environment variable to switch
+- Secrets are injected via environment variables or `.env` files — never hardcoded
+

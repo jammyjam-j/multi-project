@@ -18,7 +18,7 @@ class Product(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'price': self.price,
+            'price': float(self.price),
             'stock': self.stock,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()

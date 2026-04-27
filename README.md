@@ -94,11 +94,16 @@ week10/
 - **docker-compose.yml** simplified to SQLite-only (matches local dev config); removed unused PostgreSQL dependency
 - **`/ready` endpoint** no longer leaks raw exception text — returns generic `"database unavailable"` message
 
+### P1 (should): Configuration hardening with environment variables
+- **Secrets moved to `.env`** — JWT secret and database config no longer hardcoded in source code
+
 ### P2 (nice): Price numeric type + stronger validation + expand auth tests
 - **Price field** changed from `db.Float` to `db.Numeric(precision=10, scale=2)` for financial accuracy
 - **Validation** added: name cannot be empty, price must be non-negative, stock cannot be negative
 - **Auth tests** expanded: login success, invalid credentials, nonexistent user, unauthenticated mutation attempts
 
+### P2 (nice): Additional edge-case tests
+- **Extra tests added** — covers invalid input, expired tokens, and boundary values
 ---
 
 ## Week 10 Lab — Fix Evidence

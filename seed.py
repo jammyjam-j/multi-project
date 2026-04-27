@@ -1,6 +1,7 @@
 """Seed script to populate the database with sample data."""
 from app import create_app, db
 from models import Product, User
+from werkzeug.security import generate_password_hash
 
 def seed():
     app = create_app()
@@ -12,11 +13,11 @@ def seed():
             print("Database already populated. Run with --force to reset.")
             return
 
-        # Sample users
+        # Sample users with hashed passwords
         users = [
-            User(username='admin', password_hash='admin123', role='admin'),
-            User(username='jane_doe', password_hash='password123', role='user'),
-            User(username='viewer', password_hash='viewonly', role='viewer'),
+            User(username='admin', password_hash=generate_password_hash('admin123'), role='admin'),
+            User(username='jane_doe', password_hash=generate_password_hash('password123'), role='user'),
+            User(username='viewer', password_hash=generate_password_hash('viewonly'), role='viewer'),
         ]
         for user in users:
             db.session.add(user)

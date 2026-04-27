@@ -86,53 +86,45 @@ week10/
 
 ## Week 10 Lab — Priorities
 
-### P0 (must do): Fix `/ready` endpoint semantics
-**Problem**: The readiness endpoint returns 200 even when the database connection fails silently. This masks failures during deployment and makes troubleshooting difficult.  
-**Impact**: Blocks reliable demo — system appears healthy when it is not.
+### P0 (must): Hash passwords + enforce JWT on product mutations
+- **Hashed passwords** using `werkzeug.security.generate_password_hash` / `check_password_hash` — plain-text passwords no longer stored
+- **JWT enforced** on all product mutations (POST, PUT, DELETE) via `@token_required` decorator — unauthenticated requests return 401
 
-### P1 (should do): Add consistent error handling and HTTP status codes
-**Problem**: Missing validation returns 500 instead of 400; unhandled exceptions crash the server.  
-**Impact**: Improves reliability and API contract compliance.
+### P1 (should): Fix compose DB config; sanitize `/ready` errors
+- **docker-compose.yml** simplified to SQLite-only (matches local dev config); removed unused PostgreSQL dependency
+- **`/ready` endpoint** no longer leaks raw exception text — returns generic `"database unavailable"` message
 
-### P2 (nice to do): Complete documentation with ADRs and architecture diagrams
-**Problem**: No architectural decisions are documented; new team members cannot understand design rationale.  
-**Impact**: Improves clarity for defense and future maintenance.
+### P2 (nice): Price numeric type + stronger validation + expand auth tests
+- **Price field** changed from `db.Float` to `db.Numeric(precision=10, scale=2)` for financial accuracy
+- **Validation** added: name cannot be empty, price must be non-negative, stock cannot be negative
+- **Auth tests** expanded: login success, invalid credentials, nonexistent user, unauthenticated mutation attempts
 
 ---
 
 ## Week 10 Lab — Fix Evidence
 
-### Fix: `/ready` endpoint now returns accurate database status
+### Fix: `/ready` endpoint no longer leaks raw exception text
 
-**BEFORE** (failing case):
-```bash
-# DB connection fails but endpoint returns 200
-curl http://localhost:5000/ready
-# {"status": "ready"}  ← INCORRECT when DB is down
+**BEFORE**:
+```json
+{"status": "not_ready", "error": "connection refused: (2003) Can't connect to server..."}
 ```
 
-**AFTER** (correct behavior):
-```bash
-# DB connection fails — endpoint returns 503 with details
-curl http://localhost:5000/ready
-# {"status": "not_ready", "error": "connection refused"}
-
-# After DB restart — endpoint returns 200
-curl http://localhost:5000/ready
-# {"status": "ready", "database": "connected"}
+**AFTER**:
+```json
+{"status": "not_ready", "reason": "database unavailable"}
 ```
 
-**Commands to verify**:
-```bash
-# Start the API
-python run.py
+### Fix: Passwords are hashed, not stored in plain text
 
-# Test health endpoint
-curl http://localhost:5000/health
+| Before | After |
+|--------|-------|
+| `user.password_hash = 'admin123'` | `user.password_hash = 'pbkdf2:sha256:...` |
 
-# Test readiness endpoint
-curl http://localhost:5000/ready
+### Fix: Product mutations require JWT
 
-# Run test suite
-pytest -v
-```
+| Endpoint | Without token | With token |
+|----------|---------------|------------|
+| `POST /products` | 401 Unauthorized | 201 Created |
+| `PUT /products/1` | 401 Unauthorized | 200 OK |
+| `DELETE /products/1` | 401 Unauthorized | 200 OK |

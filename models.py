@@ -1,5 +1,6 @@
 from app import db
 from datetime import datetime
+from decimal import Decimal
 
 class Product(db.Model):
     __tablename__ = 'products'
@@ -7,7 +8,7 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, default='')
-    price = db.Column(db.Float, nullable=False)
+    price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
     stock = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

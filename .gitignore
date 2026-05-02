@@ -1,42 +1,36 @@
-# Python
 __pycache__/
 *.py[cod]
-*.pyo
 *.egg-info/
-*.egg
 dist/
 build/
-*.whl
 
-# Virtual environments
 venv/
 env/
 ENV/
 .venv/
 
-# IDE
 .idea/
 .vscode/
+.cursor/
 *.swp
-*.swo
 
-# OS
 .DS_Store
 Thumbs.db
 
-# Flask-SQLAlchemy
 instance/
 *.db
-*.sqlite
-*.sqlite3
+*.sqlite*
 
-# Testing
 .pytest_cache/
 .coverage
 htmlcov/
 
-# Docker
+.env
 docker-compose/overrides/.env
 
-# Objectives
+docs/
+Presentation_Notes.md
+
 week10_objective.txt
+
+final_objective.txt

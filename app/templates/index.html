@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-commerce Lite</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div>
+          <h1>North Hall Supply</h1>
+        </div>
+        <nav id="topbar-actions" class="topbar-actions" aria-label="Main navigation"></nav>
+      </header>
+
+      <main id="app" class="app-stage" aria-live="polite">
+        <div class="section-card loading">Loading storefront…</div>
+      </main>
+    </div>
+
+    <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </body>
+</html>

@@ -1,3 +1,8 @@
+import os
+
+os.environ.setdefault('ENV', 'development')
+os.environ.setdefault('FLASK_DEBUG', '1')
+
 from app import create_app
 
 app = create_app()

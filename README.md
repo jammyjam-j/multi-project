@@ -102,8 +102,10 @@ The `./instance` volume is still mounted for optional SQLite experiments; the de
 Important:
 
 - Do not rely on the fallback development secret outside development.
-- The repo includes `.env.example`, but not a committed real secret.
+- The repo includes `.env.example`, but not a committed real secret. JWT and database settings are intended to come from the environment, not from hardcoded values in source.
 - `config.py` loads `.env` automatically via `python-dotenv` when the config module is imported.
+
+Product prices use `Numeric` (not float) for safer money handling. Validation rejects empty names and negative price or stock. Tests cover auth success and failure paths, invalid input, expired tokens, and related edge cases (see [How to test](#how-to-test)).
 
 ## How to test
 

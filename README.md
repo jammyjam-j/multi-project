@@ -1,6 +1,7 @@
 # E-commerce Lite
 
-**Author:** Myroslav Abdeljawwad - Student ID **74448**  
+**Author:** Myroslav Abdeljawwad - Student ID **74448** 
+** Mohammad Fateh Naeem - Student ID **70281** 
 Course project for Design of Multi-Tier Internet Applications.
 
 ## What the project does

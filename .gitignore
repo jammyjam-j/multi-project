@@ -24,15 +24,17 @@ instance/
 .pytest_cache/
 .coverage
 htmlcov/
+documents/
 
 .env
 docker-compose/overrides/.env
 
-docs/
-Presentation_Notes.md
+docs/superpowers/
 
 week10_objective.txt
 
 final_objective.txt
 
 notes.txt
+load_test.py
+load_test_results.txt

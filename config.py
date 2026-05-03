@@ -12,6 +12,7 @@ class Config:
     JWT_EXPIRATION_HOURS = 24
     API_TIMEOUT_SECONDS = int(os.environ.get('API_TIMEOUT', '30'))
 
+    # TODO: move JWT secret to a proper secrets manager (e.g. AWS Secrets Manager)
     if SECRET_KEY == 'dev-secret-key-change-in-production':
         if not os.environ.get('FLASK_DEBUG') and os.environ.get('ENV') != 'development':
             raise RuntimeError(

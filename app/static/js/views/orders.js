@@ -1,20 +1,5 @@
 import { fetchMyOrders, simulateOrderPayment } from "../api.js";
-
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
-function formatDate(value) {
-  try {
-    return new Date(value).toLocaleString();
-  } catch (error) {
-    return value;
-  }
-}
+import { escapeHtml, formatDate } from "../utils.js";
 
 export async function renderOrders(root, options) {
   const { auth } = options;
@@ -24,7 +9,7 @@ export async function renderOrders(root, options) {
       button.addEventListener("click", async () => {
         const orderId = button.dataset.orderId;
         button.disabled = true;
-        button.textContent = "Processing…";
+        button.textContent = "Processing...";
         try {
           await simulateOrderPayment(parseInt(orderId, 10));
           await paint();
@@ -51,7 +36,7 @@ export async function renderOrders(root, options) {
             <div>
               <p class="eyebrow">History</p>
               <h2>My orders</h2>
-              <p>New checkouts appear as awaiting payment until you confirm the simulated card charge.</p>
+              <p>New orders stay in pending payment until you confirm the simulated payment.</p>
             </div>
           </div>
           ${
@@ -96,7 +81,7 @@ export async function renderOrders(root, options) {
                     )
                     .join("")}
                 </div>`
-              : '<div class="empty-state">No orders yet. Use the cart and checkout flow to create one.</div>'
+              : '<div class="empty-state">No orders yet.</div>'
           }
         </div>
       </section>
@@ -124,7 +109,7 @@ export async function renderOrders(root, options) {
   if (auth.role === "admin") {
     root.innerHTML = `
       <section class="section-card">
-        <p class="message info">Admin accounts use the dashboard for order review. Customer order history is under the customer route only.</p>
+        <p class="message info">Admin accounts should use the dashboard for order review.</p>
       </section>
     `;
     return;

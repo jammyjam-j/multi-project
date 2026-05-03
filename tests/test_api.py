@@ -709,7 +709,12 @@ def test_simulate_payment_admin_role_forbidden(client, admin_token):
 
 
 def test_customer_forbidden_from_admin_order_listing(client, customer_token):
+    # Customers shouldn't see the admin order list
     response = client.get('/api/v1/orders',
         headers={'Authorization': f'Bearer {customer_token}'}
     )
     assert response.status_code == 403
+
+
+# TODO: add tests for order pagination once we implement it on the admin endpoint
+# def test_admin_all_orders_pagination(client, admin_token): ...

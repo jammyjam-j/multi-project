@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 
 from app.services.auth_service import authenticate_user, generate_token, register_user
 from app.services.validators import ConflictError, ValidationError
@@ -6,11 +6,20 @@ from app.services.validators import ConflictError, ValidationError
 auth_bp = Blueprint('auth', __name__)
 
 
+def _get_limiter():
+    """Get the limiter from the app."""
+    return getattr(current_app, 'limiter', None)
+
+
 @auth_bp.route('/auth/register', methods=['POST'])
 def register():
+    limiter = _get_limiter()
+    if limiter:
+        limiter.limit("5 per minute")
+
     data = request.get_json(silent=True)
     if not data:
-        return jsonify({'error': 'Invalid JSON'}), 400
+        return jsonify({'error': 'Registration requires a JSON body with username and password'}), 400
 
     username = data.get('username')
     password = data.get('password')
@@ -27,14 +36,18 @@ def register():
 
 @auth_bp.route('/auth/login', methods=['POST'])
 def login():
+    limiter = _get_limiter()
+    if limiter:
+        limiter.limit("10 per minute")
+
     data = request.get_json(silent=True)
     if not data:
-        return jsonify({'error': 'Invalid JSON'}), 400
+        return jsonify({'error': 'Login requires a JSON body with username and password'}), 400
 
     username = data.get('username')
     password = data.get('password')
     if not username or not password:
-        return jsonify({'error': 'Username and password required'}), 400
+        return jsonify({'error': 'Both username and password are required'}), 400
 
     user = authenticate_user(username, password)
     if user is None:

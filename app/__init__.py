@@ -2,13 +2,19 @@ import json
 import logging
 import sys
 import time
+from datetime import datetime
+
 from flask import Flask, jsonify, has_request_context, render_template, request
 from flask_cors import CORS
-from datetime import datetime
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 from app.extensions import db
+from app.middleware import add_security_headers
 
 
 def setup_structured_logging(app):
+    """Add a stdout JSON logger."""
     handler_name = 'structured_stdout'
 
     class JsonFormatter(logging.Formatter):
@@ -53,8 +59,16 @@ def create_app(config=None):
     else:
         app.config.from_mapping(config)
 
-    setup_structured_logging(app)
+    limiter = Limiter(
+        app=app,
+        key_func=get_remote_address,
+        default_limits=["60 per minute"],
+        storage_uri="memory://",
+    )
+    app.limiter = limiter
 
+    setup_structured_logging(app)
+    add_security_headers(app)
     db.init_app(app)
 
     @app.before_request
@@ -65,7 +79,7 @@ def create_app(config=None):
     def log_response(response):
         duration = time.time() - getattr(request, 'start_time', time.time())
         app.logger.info(
-            f'{request.method} {request.path} {response.status_code} {duration*1000:.1f}ms'
+            f'{request.method} {request.path} {response.status_code} {duration * 1000:.1f}ms'
         )
         return response
 

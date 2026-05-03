@@ -1,10 +1,4 @@
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
+import { escapeHtml } from "../utils.js";
 
 export function renderRegister(root, options) {
   const { auth, onRegisterSuccess } = options;

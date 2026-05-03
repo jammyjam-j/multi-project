@@ -7,22 +7,7 @@ import {
   fetchAllOrders,
   fetchCategories,
 } from "../api.js";
-
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
-function formatDate(value) {
-  try {
-    return new Date(value).toLocaleString();
-  } catch (error) {
-    return value;
-  }
-}
+import { escapeHtml, formatDate } from "../utils.js";
 
 export async function renderAdmin(root, options) {
   const { auth } = options;
@@ -36,7 +21,7 @@ export async function renderAdmin(root, options) {
     return;
   }
 
-  root.innerHTML = '<div class="loading">Loading admin dashboard...</div>';
+  root.innerHTML = '<div class="loading">Loading admin page...</div>';
 
   let productMessage = "";
   let categoryMessage = "";
@@ -58,7 +43,7 @@ export async function renderAdmin(root, options) {
             <div>
               <p class="eyebrow">Admin</p>
               <h2>Dashboard</h2>
-              <p>Simple management screen for the course demo: product/category forms plus all-order review.</p>
+              <p>Manage products, categories, and orders here.</p>
             </div>
             <div class="toolbar">
               <button class="button button-secondary" id="refresh-admin">Refresh data</button>
@@ -323,7 +308,7 @@ export async function renderAdmin(root, options) {
     } catch (error) {
       root.innerHTML = `
         <section class="section-card">
-          <p class="message error">${escapeHtml(error.message || "Could not load admin dashboard.")}</p>
+          <p class="message error">${escapeHtml(error.message || "Could not load admin page.")}</p>
         </section>
       `;
     }

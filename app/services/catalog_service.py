@@ -10,10 +10,12 @@ PRODUCT_CACHE_PREFIX = 'products:'
 
 
 def _invalidate_catalog_cache():
+    """Invalidate product-related cache entries after mutations."""
     cache_invalidate(PRODUCT_CACHE_PREFIX)
 
 
 def _as_decimal(value):
+    """Convert anything numeric to Decimal — avoids float precision issues with money."""
     return Decimal(str(value))
 
 
@@ -85,5 +87,6 @@ def update_category(category, data):
 
 
 def delete_category(category):
+    # TODO: check for products in this category before allowing deletion
     db.session.delete(category)
     db.session.commit()

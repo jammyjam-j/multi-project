@@ -1,24 +1,6 @@
 import { fetchCategories, fetchProduct } from "../api.js";
 import { addToCart } from "../store.js";
-
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
-function formatDate(value) {
-  if (!value) {
-    return "—";
-  }
-  try {
-    return new Date(value).toLocaleString();
-  } catch (error) {
-    return value;
-  }
-}
+import { escapeHtml, formatDate } from "../utils.js";
 
 function renderSheet(root, options) {
   const { product, categories, onCartChange } = options;

@@ -1,14 +1,9 @@
 import { createOrder } from "../api.js";
 import { clearCart, getCart, getCartTotal, removeFromCart, updateCartItem } from "../store.js";
+import { escapeHtml } from "../utils.js";
 
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
+// Note: cart lives in localStorage so it survives page refreshes.
+// If the user clears browser data, orders are lost — not ideal but fine for demo.
 export function renderCart(root, options) {
   const { auth, onCartChange, navigate } = options;
   let cart = getCart();

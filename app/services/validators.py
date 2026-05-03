@@ -110,6 +110,7 @@ def validate_order_payload(data):
             return ['Each order item must be an object']
         if 'product_id' not in item or 'quantity' not in item:
             return ['Each order item requires product_id and quantity']
+        # Note: booleans pass isinstance(x, int) in Python, but the <= 0 check catches them
         if not isinstance(item['product_id'], int) or item['product_id'] <= 0:
             return ['Product ID must be a positive integer']
         if not isinstance(item['quantity'], int) or item['quantity'] <= 0:

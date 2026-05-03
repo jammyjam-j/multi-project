@@ -24,7 +24,7 @@ orders_bp = Blueprint('orders', __name__)
 def create_order_endpoint(current_user):
     data = request.get_json(silent=True)
     if data is None:
-        return jsonify({'error': 'Invalid JSON'}), 400
+        return jsonify({'error': 'Order items are required'}), 400
 
     errors = validate_order_payload(data)
     if errors:
@@ -64,5 +64,6 @@ def get_my_orders(current_user):
 @token_required
 @role_required('admin')
 def get_all_orders(current_user):
+    # FIXME: this returns ALL orders without pagination — will break with large datasets
     orders = list_all_orders()
     return jsonify({'orders': [order.to_dict() for order in orders]}), 200

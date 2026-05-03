@@ -11,6 +11,11 @@ from models import User
 
 
 def authenticate_user(username, password):
+    """Verify credentials against the database.
+
+    Returns None on failure — never raises so callers can return a generic
+    401 without leaking whether the username exists.
+    """
     user = User.query.filter_by(username=username).first()
     if user is None or not check_password_hash(user.password_hash, password):
         return None

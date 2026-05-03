@@ -25,6 +25,7 @@ def cache_set(key, value, ttl=30):
 
 
 def cache_invalidate(pattern):
+    """Remove keys that start with the pattern."""
     with _cache_lock:
         keys_to_remove = [key for key in _cache if key.startswith(pattern)]
         for key in keys_to_remove:

@@ -27,6 +27,7 @@ jobs:
           pip install flake8
 
       - name: Lint with flake8
+        # TODO: fix lint errors properly instead of ignoring — currently ignoring E501 (line length)
         run: |
           flake8 --max-line-length 100 --ignore E501,W503 .
         continue-on-error: true

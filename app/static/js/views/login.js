@@ -1,10 +1,4 @@
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
+import { escapeHtml } from "../utils.js";
 
 function isCustomerLike(role) {
   return role === "customer" || role === "user";

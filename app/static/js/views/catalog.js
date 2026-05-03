@@ -1,13 +1,6 @@
 import { fetchAllProducts, fetchCategories } from "../api.js";
 import { addToCart } from "../store.js";
-
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
+import { escapeHtml } from "../utils.js";
 
 function renderProducts(products, categories, activeCategoryId) {
   const categoryMap = new Map(categories.map((category) => [category.id, category.name]));
@@ -33,7 +26,7 @@ function renderProducts(products, categories, activeCategoryId) {
                   <span class="badge">${escapeHtml(categoryMap.get(product.category_id) || "Unsorted")}</span>
                 </div>
                 <p class="muted">${escapeHtml(product.description || "No description added.")}</p>
-                <span class="product-card-open muted">View full details →</span>
+                <span class="product-card-open muted">View details -></span>
               </a>
               <div class="inline-actions">
                 <button type="button" class="button button-primary add-to-cart" data-product-id="${product.id}">Add to cart</button>
@@ -63,10 +56,10 @@ export async function renderCatalog(root, options) {
               <div>
                 <p class="eyebrow">Storefront</p>
                 <h2>Catalog</h2>
-                <p>Public browsing stays simple. Orders start from the cart and checkout screen.</p>
+                <p>Browse products here and place orders from the cart.</p>
               </div>
               <div class="hero-note">
-                <p>Showing ${products.length} product${products.length === 1 ? "" : "s"} from the live API. Low-stock items can still fail on checkout if inventory changed after you added them.</p>
+                <p>Showing ${products.length} product${products.length === 1 ? "" : "s"}.</p>
               </div>
             </div>
             ${flashMessage ? `<p class="message success">${escapeHtml(flashMessage)}</p>` : ""}

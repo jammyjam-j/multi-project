@@ -1,6 +1,7 @@
 from app import db
 from datetime import datetime
 
+
 class Category(db.Model):
     __tablename__ = 'categories'
 
@@ -52,6 +53,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
+    # Transitional: backend still uses 'user' as a role value in some places.
+    # Treat 'user' == 'customer' at the auth layer.
     role = db.Column(db.String(20), default='user')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     orders = db.relationship('Order', back_populates='user', lazy=True)

@@ -132,7 +132,7 @@ async function handleRegister(credentials) {
 
 async function renderRoute() {
   if (!nav || !root) {
-    console.error("#app or #topbar-actions missing — check index.html.");
+    console.error("#app or #topbar-actions missing.");
     return;
   }
 

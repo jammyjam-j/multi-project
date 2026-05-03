@@ -24,6 +24,7 @@ categories_bp = Blueprint('categories', __name__)
 
 @products_bp.route('/products', methods=['GET'])
 def get_products():
+    # TODO: add category filter and search params here
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
 
@@ -55,7 +56,7 @@ def get_product(product_id):
 def create_product(current_user):
     data = request.get_json(silent=True)
     if not data:
-        return jsonify({'error': 'Invalid JSON'}), 400
+        return jsonify({'error': 'Request body must be valid JSON'}), 400
 
     errors = validate_product_payload(data, require_name=True, require_price=True)
     if errors:
@@ -72,7 +73,7 @@ def update_product(current_user, product_id):
     product = Product.query.get_or_404(product_id)
     data = request.get_json(silent=True)
     if not data:
-        return jsonify({'error': 'Invalid JSON'}), 400
+        return jsonify({'error': 'Request body must be valid JSON'}), 400
 
     errors = validate_product_payload(data, require_name=False, require_price=False)
     if errors:
@@ -88,7 +89,7 @@ def update_product(current_user, product_id):
 def delete_product(current_user, product_id):
     product = Product.query.get_or_404(product_id)
     delete_product_record(product)
-    return jsonify({'message': 'Product deleted'}), 200
+    return jsonify({'message': 'Product removed from catalog'}), 200
 
 
 @categories_bp.route('/categories', methods=['GET'])
@@ -103,7 +104,7 @@ def get_categories():
 def create_category(current_user):
     data = request.get_json(silent=True)
     if not data:
-        return jsonify({'error': 'Invalid JSON'}), 400
+        return jsonify({'error': 'Request body must be valid JSON'}), 400
 
     errors = validate_category_payload(data, require_name=True)
     if errors:
@@ -123,12 +124,12 @@ def update_category(current_user, category_id):
     category = Category.query.get_or_404(category_id)
     data = request.get_json(silent=True)
     if not data:
-        return jsonify({'error': 'Invalid JSON'}), 400
+        return jsonify({'error': 'Request body must be valid JSON'}), 400
 
     if 'name' in data:
         new_name = validate_category_name(data['name'])
         if not new_name:
-            return jsonify({'error': 'Name cannot be empty'}), 400
+            return jsonify({'error': 'Category name cannot be blank'}), 400
 
     try:
         category = update_category_record(category, data)
@@ -143,4 +144,4 @@ def update_category(current_user, category_id):
 def delete_category(current_user, category_id):
     category = Category.query.get_or_404(category_id)
     delete_category_record(category)
-    return jsonify({'message': 'Category deleted'}), 200
+    return jsonify({'message': 'Category removed'}), 200

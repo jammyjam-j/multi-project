@@ -4,6 +4,11 @@ from werkzeug.security import generate_password_hash
 
 
 def seed():
+    """Populate the database with demo data.
+
+    Run once after first deploy:  python seed.py
+    Safe to re-run — it backfills missing records without duplicating.
+    """
     app = create_app()
     with app.app_context():
         db.create_all()
@@ -11,6 +16,7 @@ def seed():
         user_specs = [
             {'username': 'admin', 'password': 'admin123', 'role': 'admin'},
             {'username': 'customer1', 'password': 'customer123', 'role': 'customer'},
+            # TODO: seed editor and viewer accounts to match the login page demo hints
         ]
         users = []
         for spec in user_specs:
